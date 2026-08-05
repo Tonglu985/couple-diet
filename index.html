@@ -283,7 +283,7 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
           <div class="ov-c out"><div class="v" id="ovOut">0</div><div class="l">🔥 运动消耗 (kcal)</div></div>
           <div class="ov-c diff" id="ovDiffBox"><div class="v" id="ovDiff">0</div><div class="l" id="ovDiffLbl">热量差值</div></div>
           <div class="ov-c" id="ovRemainBox"><div class="v" id="ovRemain" style="color:var(--green-dark)">--</div><div class="l" id="ovRemainLbl">剩余可吃 (kcal)</div></div>
-          <div class="ov-c"><div class="v" id="ovWeight">--</div><div class="l">⚖️ 体重 (kg)</div></div>
+          <div class="ov-c"><div class="v" id="ovWeight">--</div><div class="l">⚖️ 体重 (斤)</div></div>
         </div>
         <div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding:8px 10px;background:var(--card2);border-radius:8px;line-height:1.6">
           📊 <b>计算说明</b>：热量差值 = 标准摄入 - (已摄入 - 运动消耗)。正数=达标有缺口✓，负数=超标⚠<br>
@@ -343,8 +343,27 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
       </div>
 
       <div class="card">
-        <div class="ct">今日固定行程 <span class="tag" id="routineDate">--</span></div>
+        <div class="ct">每日行程 <span class="tag" id="routineDate">--</span>
+          <button class="btn" style="font-size:11px;padding:4px 10px" onclick="addRoutine()">+ 新增行程</button>
+        </div>
         <div id="routineList"></div>
+      </div>
+
+      <div class="card">
+        <div class="ct">添加新行程</div>
+        <div class="custom">
+          <input id="newRoutineTime" placeholder="时间 如07:30" style="max-width:90px">
+          <input id="newRoutineDesc" placeholder="行程内容">
+          <button class="ba" onclick="addRoutineForm()">+ 添加</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ct">行程操作</div>
+        <div class="act-grid">
+          <button class="btn big" onclick="resetRoutine()">↺ 恢复默认行程</button>
+          <button class="btn big" onclick="clearRoutine()">🗑 清空所有行程</button>
+        </div>
       </div>
     </section>
 
@@ -358,15 +377,38 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
       </div>
 
       <div class="card">
-        <div class="ct">添加食物 <span class="tag">点击添加</span></div>
+        <div class="ct">添加食物 <span class="tag">搜索自动带出热量</span></div>
+
+        <!-- 搜索框 -->
+        <div style="position:relative;margin-bottom:14px">
+          <input id="foodSearch" type="text" placeholder="🔍 输入食物名称（如：鸡胸肉、米饭）自动显示热量"
+            style="width:100%;background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;outline:none"
+            oninput="searchFood(this.value)" onfocus="searchFood(this.value)">
+          <div id="foodSuggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:0 0 8px 8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;max-height:240px;overflow-y:auto"></div>
+        </div>
+
+        <!-- 拍照识别 -->
+        <div style="margin-bottom:14px">
+          <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border:2px dashed var(--green);border-radius:10px;cursor:pointer;background:var(--card2);transition:all .2s;font-size:13px;font-weight:600;color:var(--green-dark)"
+            onmouseover="this.style.background='#e8f0ea'" onmouseout="this.style.background='var(--card2)'">
+            📷 拍照/上传图片识别食物
+            <input type="file" accept="image/*" capture="environment" style="display:none" onchange="recognizeFood(this.files[0])">
+          </label>
+          <div id="photoResult" style="display:none;margin-top:10px"></div>
+        </div>
+
+        <!-- 分类标签 -->
         <div class="cat-tabs" id="foodTabs"></div>
         <div class="food-grid" id="foodGrid"></div>
+
+        <!-- 手动添加 -->
         <div class="custom">
           <input id="customFood" placeholder="自定义食物">
           <input id="customCal" placeholder="100g热量" style="max-width:90px">
           <input id="customGram" placeholder="克数" style="max-width:70px">
           <button class="ba" onclick="addCustomFood()">+ 添加</button>
         </div>
+
         <div class="list" id="foodList"></div>
         <div class="sum">今日总摄入：<span class="v" id="foodTotal">0 kcal</span></div>
       </div>
@@ -405,18 +447,18 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
           <div class="grp h">
             <div class="gt h">👨 老公</div>
             <div class="sr">
-              <div class="si"><label>起始体重(kg)</label><input type="number" id="hStart" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>目标体重(kg)</label><input type="number" id="hGoal" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>今日体重(kg)</label><input type="number" id="hToday" step="0.1" onchange="saveSetup()"></div>
+              <div class="si"><label>起始体重(斤)</label><input type="number" id="hStart" step="0.1" onchange="saveSetup()"></div>
+              <div class="si"><label>目标体重(斤)</label><input type="number" id="hGoal" step="0.1" onchange="saveSetup()"></div>
+              <div class="si"><label>今日体重(斤)</label><input type="number" id="hToday" step="0.1" onchange="saveSetup()"></div>
               <div class="si"><label>每日目标(kcal)</label><input type="number" id="hTarget" onchange="saveSetup()"></div>
             </div>
           </div>
           <div class="grp w">
             <div class="gt w">👩 老婆</div>
             <div class="sr">
-              <div class="si"><label>起始体重(kg)</label><input type="number" id="wStart" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>目标体重(kg)</label><input type="number" id="wGoal" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>今日体重(kg)</label><input type="number" id="wToday" step="0.1" onchange="saveSetup()"></div>
+              <div class="si"><label>起始体重(斤)</label><input type="number" id="wStart" step="0.1" onchange="saveSetup()"></div>
+              <div class="si"><label>目标体重(斤)</label><input type="number" id="wGoal" step="0.1" onchange="saveSetup()"></div>
+              <div class="si"><label>今日体重(斤)</label><input type="number" id="wToday" step="0.1" onchange="saveSetup()"></div>
               <div class="si"><label>每日目标(kcal)</label><input type="number" id="wTarget" onchange="saveSetup()"></div>
             </div>
           </div>
@@ -641,7 +683,7 @@ function updateOverview(){
   }else{
     document.getElementById('ovFormula').innerHTML=`${name}标准摄入：<b>${r.target}</b> kcal/天（默认值，去"目标体重"页自定义）`;
   }
-  document.getElementById('ovWeight').textContent=r.weight||'--';
+  document.getElementById('ovWeight').textContent=r.weight?(Math.round(r.weight*2*10)/10):'--';
   document.getElementById('ovProg')&&(document.getElementById('ovProg').textContent=r.prog+'%');
 
   const rH=calcP('h');const rW=calcP('w');
@@ -825,23 +867,6 @@ function renderCal(){
 function calShift(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}renderCal();}
 function jumpDate(d){alert('已选择 '+d+'\n日常任务和打卡按今天日期进行');}
 
-// 行程
-function renderRoutine(){
-  document.getElementById('routineDate').textContent=dsShow;
-  const saved=getRoutine();
-  const data=saved||routine.map(r=>({...r,checked:false}));
-  if(!saved)localStorage.setItem('couple_routine',JSON.stringify(data));
-  document.getElementById('routineList').innerHTML=data.map((r,i)=>
-    `<div class="routine-item ${r.checked?'done':''}"><div class="chk ${r.checked?'done':''}" onclick="toggleRoutine(${i})"></div>
-      <span class="time">${r.t}</span><span class="desc">${r.d}</span></div>`).join('');
-}
-function toggleRoutine(i){
-  const data=getRoutine()||routine.map(r=>({...r,checked:false}));
-  data[i].checked=!data[i].checked;
-  localStorage.setItem('couple_routine',JSON.stringify(data));
-  renderRoutine();
-}
-
 // 历史
 function saveDay(){
   const rH=calcP('h');const rW=calcP('w');
@@ -906,8 +931,154 @@ function exportData(){
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`减肥打卡_${ds}.txt`;a.click();
 }
 
-// 初始化
-loadSetup();renderFoodTabs();renderFood();renderExe();renderCal();renderHist();updateOverview();
+// ====== 食物搜索联想 ======
+function searchFood(q){
+  const box=document.getElementById('foodSuggest');
+  if(!q||q.trim().length<1){box.style.display='none';return}
+  q=q.trim().toLowerCase();
+  const results=[];
+  Object.keys(foodDB).forEach(cat=>{
+    foodDB[cat].forEach(f=>{
+      if(f.n.toLowerCase().includes(q)||cat.toLowerCase().includes(q)){
+        results.push({...f,cat});
+      }
+    });
+  });
+  if(results.length===0){
+    box.style.display='block';
+    box.innerHTML='<div style="padding:10px;font-size:12px;color:var(--text-dim)">未找到，请用下方自定义添加</div>';
+    return;
+  }
+  box.style.display='block';
+  box.innerHTML=results.slice(0,8).map((r,i)=>
+    `<div style="padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px"
+      onmouseover="this.style.background='#e8f0ea'"
+      onmouseout="this.style.background='#fff'"
+      onclick="pickFood('${r.cat}','${r.n}',${r.c})">
+      <b>${r.n}</b> <span style="color:var(--text-dim);font-size:11px">[${r.cat}]</span>
+      <span style="float:right;color:var(--green-dark);font-weight:600">${r.c} kcal/100g</span>
+    </div>`).join('');
+}
+function pickFood(cat,name,cal){
+  document.getElementById('foodSuggest').style.display='none';
+  // 直接添加到列表，默认100g
+  const day=getDay();
+  if(!day[ds])day[ds]={h:{foods:[],exes:[],weight:null},w:{foods:[],exes:[],weight:null}};
+  day[ds][curPerson].foods.push({n:name,c:cal,g:100,cal:Math.round(cal)});
+  localStorage.setItem('couple_day',JSON.stringify(day));
+  document.getElementById('foodSearch').value='';
+  renderFoodList();updateOverview();
+}
+// 点击外部关闭搜索
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#foodSearch')&&!e.target.closest('#foodSuggest')){
+    document.getElementById('foodSuggest').style.display='none';
+  }
+});
+
+// ====== 拍照识别食物 ======
+function recognizeFood(file){
+  if(!file){return}
+  const resultDiv=document.getElementById('photoResult');
+  resultDiv.style.display='block';
+  resultDiv.innerHTML='<div style="text-align:center;padding:14px;color:var(--text-dim);font-size:13px">⏳ AI 识别中...</div>';
+
+  // 显示图片预览
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const imgData=e.target.result;
+    // 用本地食物库模拟识别（实际场景下可对接 AI API）
+    // 这里展示图片+让用户从食物库选择
+    resultDiv.innerHTML=`
+      <div style="text-align:center;margin-bottom:10px">
+        <img src="${imgData}" style="max-width:100%;max-height:200px;border-radius:10px;border:1px solid var(--border)">
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">📷 请从下方选择图片中的食物（或手动搜索添加）：</div>
+      <div id="photoFoodGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px"></div>
+    `;
+    // 列出所有食物供选择
+    let allFoods=[];
+    Object.keys(foodDB).forEach(cat=>{
+      foodDB[cat].forEach(f=>allFoods.push({...f,cat}));
+    });
+    document.getElementById('photoFoodGrid').innerHTML=allFoods.slice(0,20).map(f=>
+      `<div class="food-item" onclick="pickFood('${f.cat}','${f.n}',${f.c})" style="font-size:11px">
+        <div class="fn">${f.n}</div><div class="fc">${f.c}kcal/100g</div>
+      </div>`).join('');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ====== 可编辑行程 ======
+function getRoutineData(){
+  const saved=JSON.parse(localStorage.getItem('couple_routine')||'null');
+  if(saved)return saved;
+  return routine.map(r=>({...r}));
+}
+function saveRoutineData(data){
+  localStorage.setItem('couple_routine',JSON.stringify(data));
+  renderRoutine();
+}
+function renderRoutine(){
+  document.getElementById('routineDate').textContent=dsShow;
+  const data=getRoutineData();
+  document.getElementById('routineList').innerHTML=data.map((r,i)=>
+    `<div class="routine-item ${r.checked?'done':''}">
+      <div class="chk ${r.checked?'done':''}" onclick="toggleRoutine(${i})"></div>
+      <span class="time">${r.t}</span>
+      <span class="desc" contenteditable="true" onblur="editRoutine(${i},'desc',this.textContent)">${r.d}</span>
+      <span style="font-size:11px;color:var(--text-dim);cursor:pointer;margin-left:6px" onclick="editTime(${i})">✏️</span>
+      <span style="font-size:16px;color:var(--red);cursor:pointer;margin-left:4px" onclick="delRoutine(${i})">✕</span>
+    </div>`).join('')||'<div class="empty">还没有行程，点击"+新增行程"添加</div>';
+}
+function toggleRoutine(i){
+  const data=getRoutineData();
+  data[i].checked=!data[i].checked;
+  saveRoutineData(data);
+}
+function editRoutine(i,field,val){
+  const data=getRoutineData();
+  data[i][field]=val;
+  saveRoutineData(data);
+}
+function editTime(i){
+  const data=getRoutineData();
+  const t=prompt('修改时间（如 07:30）',data[i].t);
+  if(t){data[i].t=t;saveRoutineData(data)}
+}
+function delRoutine(i){
+  if(!confirm('删除这条行程？'))return;
+  const data=getRoutineData();
+  data.splice(i,1);
+  saveRoutineData(data);
+}
+function addRoutineForm(){
+  const t=document.getElementById('newRoutineTime').value.trim();
+  const d=document.getElementById('newRoutineDesc').value.trim();
+  if(!t||!d){alert('请输入时间和行程内容');return}
+  const data=getRoutineData();
+  data.push({t,d,checked:false});
+  saveRoutineData(data);
+  document.getElementById('newRoutineTime').value='';
+  document.getElementById('newRoutineDesc').value='';
+}
+function addRoutine(){
+  goPage('routine');
+  document.getElementById('newRoutineTime').focus();
+}
+function resetRoutine(){
+  if(!confirm('恢复默认行程？当前自定义将丢失'))return;
+  localStorage.removeItem('couple_routine');
+  renderRoutine();
+}
+function clearRoutine(){
+  if(!confirm('清空所有行程？'))return;
+  localStorage.setItem('couple_routine',JSON.stringify([]));
+  renderRoutine();
+}
+
+// ====== 初始化 ======
+loadSetup();renderFoodTabs();renderFood();renderExe();renderCal();renderHist();updateOverview();renderRoutine();
 switchPerson('h');
 </script>
 </body>
