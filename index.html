@@ -387,15 +387,20 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
           <div id="foodSuggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:0 0 8px 8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;max-height:240px;overflow-y:auto"></div>
         </div>
 
-        <!-- 拍照识别 -->
-        <div style="margin-bottom:14px">
-          <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border:2px dashed var(--green);border-radius:10px;cursor:pointer;background:var(--card2);transition:all .2s;font-size:13px;font-weight:600;color:var(--green-dark)"
+        <!-- 拍照/相册识别 -->
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border:2px dashed var(--green);border-radius:10px;cursor:pointer;background:var(--card2);transition:all .2s;font-size:13px;font-weight:600;color:var(--green-dark)"
             onmouseover="this.style.background='#e8f0ea'" onmouseout="this.style.background='var(--card2)'">
-            📷 拍照/上传图片识别食物
+            📷 拍照识别
             <input type="file" accept="image/*" capture="environment" style="display:none" onchange="recognizeFood(this.files[0])">
           </label>
-          <div id="photoResult" style="display:none;margin-top:10px"></div>
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border:2px dashed var(--m);border-radius:10px;cursor:pointer;background:var(--card2);transition:all .2s;font-size:13px;font-weight:600;color:var(--m)"
+            onmouseover="this.style.background='#e8f0ea'" onmouseout="this.style.background='var(--card2)'">
+            🖼️ 相册选图
+            <input type="file" accept="image/*" style="display:none" onchange="recognizeFood(this.files[0])">
+          </label>
         </div>
+        <div id="photoResult" style="display:none;margin-top:10px"></div>
 
         <!-- 分类标签 -->
         <div class="cat-tabs" id="foodTabs"></div>
