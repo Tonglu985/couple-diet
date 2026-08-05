@@ -250,11 +250,17 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 
       <div class="card">
         <div class="ct">热量总览 <span class="tag" id="ovDate">--</span></div>
-        <div class="ov-grid">
-          <div class="ov-c in"><div class="v" id="ovIn">0</div><div class="l">🍎 摄入 (kcal)</div></div>
-          <div class="ov-c out"><div class="v" id="ovOut">0</div><div class="l">🔥 消耗 (kcal)</div></div>
+        <div class="ov-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="ov-c"><div class="v" id="ovTarget" style="color:var(--green-dark)">--</div><div class="l">🎯 标准摄入 (kcal)</div></div>
+          <div class="ov-c in"><div class="v" id="ovIn">0</div><div class="l">🍎 已摄入 (kcal)</div></div>
+          <div class="ov-c out"><div class="v" id="ovOut">0</div><div class="l">🔥 运动消耗 (kcal)</div></div>
           <div class="ov-c diff" id="ovDiffBox"><div class="v" id="ovDiff">0</div><div class="l" id="ovDiffLbl">热量差值</div></div>
+          <div class="ov-c" id="ovRemainBox"><div class="v" id="ovRemain" style="color:var(--green-dark)">--</div><div class="l" id="ovRemainLbl">剩余可吃 (kcal)</div></div>
           <div class="ov-c"><div class="v" id="ovWeight">--</div><div class="l">⚖️ 体重 (kg)</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:10px;padding:8px 10px;background:var(--card2);border-radius:8px;line-height:1.6">
+          📊 <b>计算说明</b>：热量差值 = 标准摄入 - (已摄入 - 运动消耗)。正数=达标有缺口✓，负数=超标⚠<br>
+          <span id="ovFormula">标准摄入：未设置，默认 -- kcal（去"目标体重"页设置）</span>
         </div>
       </div>
 
@@ -543,9 +549,12 @@ function calcP(p){
   const d=day[ds]?.[p]||{foods:[],exes:[],weight:null};
   const foodIn=d.foods.reduce((s,f)=>s+f.cal,0);
   const exeOut=d.exes.reduce((s,e)=>s+e.cal,0);
-  const target=setup[p]?.target||0;
-  const netIn=foodIn-exeOut;
-  const diff=target-netIn;
+  // 默认目标：男1800/女1400（减脂期常见值）
+  const defaultTarget=p==='h'?1800:1400;
+  const target=setup[p]?.target||defaultTarget;
+  const hasTarget=!!setup[p]?.target;
+  const netIn=foodIn-exeOut; // 净摄入 = 吃的 - 运动消耗
+  const diff=target-netIn; // 正=缺口（达标），负=超标
   const weight=d.weight||setup[p]?.today||0;
   const start=setup[p]?.start||0;
   const goal=setup[p]?.goal||0;
@@ -554,18 +563,57 @@ function calcP(p){
     if(start>goal)prog=Math.min(100,Math.max(0,Math.round((start-weight)/(start-goal)*100)));
     else prog=Math.min(100,Math.max(0,Math.round((weight-start)/(goal-start)*100)));
   }
-  return{foodIn,exeOut,target,netIn,diff,weight,start,goal,prog};
+  return{foodIn,exeOut,target,netIn,diff,weight,start,goal,prog,hasTarget,defaultTarget};
 }
 
 // 概览
 function updateOverview(){
   const r=calcP(curPerson);
+  document.getElementById('ovTarget').textContent=r.target;
   document.getElementById('ovIn').textContent=r.foodIn;
   document.getElementById('ovOut').textContent=r.exeOut;
   const box=document.getElementById('ovDiffBox');
-  if(r.diff>0){document.getElementById('ovDiff').textContent='+'+r.diff;document.getElementById('ovDiffLbl').textContent='热量缺口 ✓';box.classList.remove('bad')}
-  else if(r.diff<0){document.getElementById('ovDiff').textContent=r.diff;document.getElementById('ovDiffLbl').textContent='热量超标 ⚠';box.classList.add('bad')}
-  else{document.getElementById('ovDiff').textContent='0';document.getElementById('ovDiffLbl').textContent='热量差值';box.classList.remove('bad')}
+  if(r.foodIn===0&&r.exeOut===0){
+    // 还没录入数据
+    document.getElementById('ovDiff').textContent='0';
+    document.getElementById('ovDiffLbl').textContent='热量差值（待录入）';
+    box.classList.remove('bad');
+  }else if(r.diff>0){
+    document.getElementById('ovDiff').textContent='+'+r.diff;
+    document.getElementById('ovDiffLbl').textContent='热量缺口 ✓';
+    box.classList.remove('bad');
+  }else if(r.diff<0){
+    document.getElementById('ovDiff').textContent=r.diff;
+    document.getElementById('ovDiffLbl').textContent='热量超标 ⚠';
+    box.classList.add('bad');
+  }else{
+    document.getElementById('ovDiff').textContent='0';
+    document.getElementById('ovDiffLbl').textContent='刚好达标';
+    box.classList.remove('bad');
+  }
+  // 剩余可吃 = 标准摄入 - 已摄入 + 运动消耗
+  const remain=r.target-r.foodIn+r.exeOut;
+  const remainBox=document.getElementById('ovRemainBox');
+  if(remain>0){
+    document.getElementById('ovRemain').textContent='+'+remain;
+    document.getElementById('ovRemainLbl').textContent='剩余可吃 (kcal)';
+    document.getElementById('ovRemain').style.color='var(--green-dark)';
+  }else if(remain<0){
+    document.getElementById('ovRemain').textContent=remain;
+    document.getElementById('ovRemainLbl').textContent='已超标 (kcal)';
+    document.getElementById('ovRemain').style.color='var(--red)';
+  }else{
+    document.getElementById('ovRemain').textContent='0';
+    document.getElementById('ovRemainLbl').textContent='剩余可吃 (kcal)';
+    document.getElementById('ovRemain').style.color='var(--green-dark)';
+  }
+  // 公式说明
+  const name=curPerson==='h'?'老公':'老婆';
+  if(r.hasTarget){
+    document.getElementById('ovFormula').innerHTML=`${name}标准摄入：<b>${r.target}</b> kcal/天（你设置的）`;
+  }else{
+    document.getElementById('ovFormula').innerHTML=`${name}标准摄入：<b>${r.target}</b> kcal/天（默认值，去"目标体重"页自定义）`;
+  }
   document.getElementById('ovWeight').textContent=r.weight||'--';
   document.getElementById('ovProg')&&(document.getElementById('ovProg').textContent=r.prog+'%');
 
@@ -577,16 +625,24 @@ function updateOverview(){
   document.getElementById('barW').textContent=rW.prog+'%';
   document.getElementById('pctW').textContent=rW.prog+'%';
 
-  document.getElementById('vsHTarget').textContent=rH.target||'--';
+  document.getElementById('vsHTarget').textContent=rH.target;
   document.getElementById('vsHIn').textContent=rH.foodIn;
   document.getElementById('vsHOut').textContent=rH.exeOut;
   document.getElementById('vsHDiff').textContent=(rH.diff>0?'+':'')+rH.diff;
-  document.getElementById('vsHStatus').innerHTML=rH.diff>=0?`<span style="color:var(--green-dark);font-weight:700">✓ 达标${rH.diff>0?'（有缺口）':''}</span>`:`<span style="color:var(--red);font-weight:700">⚠ 超标 ${Math.abs(rH.diff)}kcal</span>`;
-  document.getElementById('vsWTarget').textContent=rW.target||'--';
+  document.getElementById('vsHStatus').innerHTML=rH.foodIn===0&&rH.exeOut===0
+    ? `<span style="color:var(--text-dim)">待录入数据</span>`
+    : rH.diff>=0
+      ? `<span style="color:var(--green-dark);font-weight:700">✓ 达标（还可吃 ${rH.target-rH.foodIn+rH.exeOut} kcal）</span>`
+      : `<span style="color:var(--red);font-weight:700">⚠ 超标 ${Math.abs(rH.diff)}kcal</span>`;
+  document.getElementById('vsWTarget').textContent=rW.target;
   document.getElementById('vsWIn').textContent=rW.foodIn;
   document.getElementById('vsWOut').textContent=rW.exeOut;
   document.getElementById('vsWDiff').textContent=(rW.diff>0?'+':'')+rW.diff;
-  document.getElementById('vsWStatus').innerHTML=rW.diff>=0?`<span style="color:var(--green-dark);font-weight:700">✓ 达标${rW.diff>0?'（有缺口）':''}</span>`:`<span style="color:var(--red);font-weight:700">⚠ 超标 ${Math.abs(rW.diff)}kcal</span>`;
+  document.getElementById('vsWStatus').innerHTML=rW.foodIn===0&&rW.exeOut===0
+    ? `<span style="color:var(--text-dim)">待录入数据</span>`
+    : rW.diff>=0
+      ? `<span style="color:var(--green-dark);font-weight:700">✓ 达标（还可吃 ${rW.target-rW.foodIn+rW.exeOut} kcal）</span>`
+      : `<span style="color:var(--red);font-weight:700">⚠ 超标 ${Math.abs(rW.diff)}kcal</span>`;
 
   document.getElementById('progHTxt').textContent=rH.start&&rH.goal?`${rH.start}kg → ${rH.goal}kg (当前${rH.weight||'?'}kg)，已完成 ${rH.prog}%`:'未设置';
   document.getElementById('progWTxt').textContent=rW.start&&rW.goal?`${rW.start}kg → ${rW.goal}kg (当前${rW.weight||'?'}kg)，已完成 ${rW.prog}%`:'未设置';
