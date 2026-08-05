@@ -5,7 +5,7 @@ from PIL import Image
 import os
 
 OUT = '/workspace/couple-diet/icons'
-SRC = os.path.join(OUT, 'hellokitty-original.jpg')
+SRC = os.path.join(OUT, 'hellokitty-clean.jpg')
 
 # 打开原图
 src = Image.open(SRC).convert('RGBA')
