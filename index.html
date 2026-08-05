@@ -183,10 +183,17 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 .act-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 /* 响应 */
 @media(max-width:768px){
-  .sidebar{display:none;position:fixed;z-index:50;left:0;top:0;height:100vh;width:220px;box-shadow:4px 0 12px rgba(0,0,0,.15)}
-  .sidebar.show{display:flex}
-  .topbar-mob{display:flex}
-  .main{padding:16px}
+  .sidebar{width:72px;padding:12px 6px}
+  .sidebar .brand .name,.sidebar .brand .sub{display:none}
+  .sidebar .brand{padding:4px 0 12px;margin-bottom:8px}
+  .sidebar .brand .logo{font-size:26px}
+  .sb-item{padding:9px 4px;gap:3px}
+  .sb-item .lbl{font-size:9px;line-height:1.1}
+  .sb-item .ic{font-size:20px}
+  .sidebar .bottom{display:none}
+  .topbar-mob{display:none}
+  .menu-mob{display:none!important}
+  .main{padding:14px 12px}
   .ov-grid{grid-template-columns:1fr 1fr}
   .setup-row{grid-template-columns:1fr}
 }
