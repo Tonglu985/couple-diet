@@ -4,7 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="减肥打卡">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#7fa888">
+<meta name="description" content="夫妻减肥打卡 · 每日热量管理">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="shortcut icon" href="icons/favicon-32.png">
+
+<!-- Apple Touch Icons (iOS 桌面图标) -->
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-touch-icon-57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-touch-icon-60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="icons/apple-touch-icon-72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="icons/apple-touch-icon-76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="icons/apple-touch-icon-114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="icons/apple-touch-icon-144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
 <title>夫妻减肥打卡 · Daily Workbench</title>
 <style>
 :root{
@@ -30,6 +56,7 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
   padding:8px 0 18px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:12px
 }
 .sidebar .brand .logo{font-size:30px}
+.sidebar .brand .brand-logo{width:52px;height:52px;border-radius:12px;background:#fff;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .sidebar .brand .name{font-size:14px;font-weight:700}
 .sidebar .brand .sub{font-size:10px;opacity:.7;letter-spacing:1px}
 .sb-item{
@@ -186,7 +213,7 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
   .sidebar{width:72px;padding:12px 6px}
   .sidebar .brand .name,.sidebar .brand .sub{display:none}
   .sidebar .brand{padding:4px 0 12px;margin-bottom:8px}
-  .sidebar .brand .logo{font-size:26px}
+  .sidebar .brand .logo,.sidebar .brand .brand-logo{width:42px;height:42px}
   .sb-item{padding:9px 4px;gap:3px}
   .sb-item .lbl{font-size:9px;line-height:1.1}
   .sb-item .ic{font-size:20px}
@@ -209,8 +236,8 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="logo">🌿</div>
-      <div class="name">桐露工作台</div>
+      <img src="icons/apple-touch-icon-76.png" alt="logo" class="brand-logo">
+      <div class="name">夫妻打卡</div>
       <div class="sub">Daily Workbench</div>
     </div>
     <div class="sb-item active" data-page="overview" onclick="goPage('overview')">
