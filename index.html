@@ -533,9 +533,32 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 <script>
 // ===== 工具 =====
 const now=new Date();const W=['日','一','二','三','四','五','六'];
-const ds=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-const dsShow=`${now.getMonth()+1}月${now.getDate()}日`;
-document.getElementById('ovDate').textContent=dsShow+' 周'+W[now.getDay()];
+function getDS(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function getDSShow(){const d=new Date();return `${d.getMonth()+1}月${d.getDate()}日`}
+const ds=getDS();
+const dsShow=getDSShow();
+document.getElementById('ovDate').textContent=dsShow+' 周'+W[new Date().getDay()];
+
+// 自动检测跨天：每5分钟检查一次日期，变了就刷新页面
+let lastDate=ds;
+setInterval(()=>{
+  const today=getDS();
+  if(today!==lastDate){
+    lastDate=today;
+    location.reload(); // 跨天自动刷新
+  }
+},5*60*1000);
+
+// 页面从后台切回前台时也检查
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden){
+    const today=getDS();
+    if(today!==lastDate){
+      lastDate=today;
+      location.reload();
+    }
+  }
+});
 
 // 食物库（每100g kcal）
 const foodDB={
