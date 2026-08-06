@@ -452,19 +452,19 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
           <div class="grp h">
             <div class="gt h">👨 老公</div>
             <div class="sr">
-              <div class="si"><label>起始体重(斤)</label><input type="number" id="hStart" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>目标体重(斤)</label><input type="number" id="hGoal" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>今日体重(斤)</label><input type="number" id="hToday" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>每日目标(kcal)</label><input type="number" id="hTarget" onchange="saveSetup()"></div>
+              <div class="si"><label>起始体重(斤)</label><input type="number" id="hStart" step="0.1" oninput="saveSetup()"></div>
+              <div class="si"><label>目标体重(斤)</label><input type="number" id="hGoal" step="0.1" oninput="saveSetup()"></div>
+              <div class="si"><label>今日体重(斤)</label><input type="number" id="hToday" step="0.1" oninput="saveSetup()"></div>
+              <div class="si"><label>每日目标(kcal)</label><input type="number" id="hTarget" oninput="saveSetup()"></div>
             </div>
           </div>
           <div class="grp w">
             <div class="gt w">👩 老婆</div>
             <div class="sr">
-              <div class="si"><label>起始体重(斤)</label><input type="number" id="wStart" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>目标体重(斤)</label><input type="number" id="wGoal" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>今日体重(斤)</label><input type="number" id="wToday" step="0.1" onchange="saveSetup()"></div>
-              <div class="si"><label>每日目标(kcal)</label><input type="number" id="wTarget" onchange="saveSetup()"></div>
+              <div class="si"><label>起始体重(斤)</label><input type="number" id="wStart" step="0.1" oninput="saveSetup()"></div>
+              <div class="si"><label>目标体重(斤)</label><input type="number" id="wGoal" step="0.1" oninput="saveSetup()"></div>
+              <div class="si"><label>今日体重(斤)</label><input type="number" id="wToday" step="0.1" oninput="saveSetup()"></div>
+              <div class="si"><label>每日目标(kcal)</label><input type="number" id="wTarget" oninput="saveSetup()"></div>
             </div>
           </div>
         </div>
@@ -782,12 +782,14 @@ function renderExe(){
     `<div class="food-item" onclick="addExe(${i})"><div class="fn">${e.n}</div><div class="fc">MET ${e.m} · 约${Math.round(e.m*65*0.5)}kcal/30min</div></div>`).join('');
   renderExeList();
 }
+// 体重进度：输入斤，内部换算
+// calcP 已处理
 function addExe(i){
   const e=exeDB[i];
   const day=getDay();
   if(!day[ds])day[ds]={h:{foods:[],exes:[],weight:null},w:{foods:[],exes:[],weight:null}};
-  const setup=getSetup();const weight=setup[curPerson]?.today||65;
-  const cal=Math.round(e.m*weight*0.5);
+  const setup=getSetup();const weightKg=(setup[curPerson]?.today||130)/2; // 斤转kg
+  const cal=Math.round(e.m*weightKg*0.5);
   day[ds][curPerson].exes.push({n:e.n,m:e.m,min:30,cal});
   localStorage.setItem('couple_day',JSON.stringify(day));
   renderExeList();updateOverview();
@@ -797,8 +799,8 @@ function addCustomExe(){
   if(!n||!m){alert('请输入运动名称和MET值（参考：散步2.5/瑜伽3/慢跑7/跳绳12）');return}
   const day=getDay();
   if(!day[ds])day[ds]={h:{foods:[],exes:[],weight:null},w:{foods:[],exes:[],weight:null}};
-  const setup=getSetup();const weight=setup[curPerson]?.today||65;
-  const cal=Math.round(m*weight*min/60);
+  const setup=getSetup();const weightKg=(setup[curPerson]?.today||130)/2; // 斤转kg
+  const cal=Math.round(m*weightKg*min/60);
   day[ds][curPerson].exes.push({n,m,min,cal});
   localStorage.setItem('couple_day',JSON.stringify(day));
   customExe.value='';customMET.value='';customMin.value='';
@@ -807,8 +809,8 @@ function addCustomExe(){
 function updateExeCal(i,val){
   const day=getDay();
   const item=day[ds][curPerson].exes[i];
-  const setup=getSetup();const weight=setup[curPerson]?.today||65;
-  item.min=+val||0;item.cal=Math.round(item.m*weight*item.min/60);
+  const setup=getSetup();const weightKg=(setup[curPerson]?.today||130)/2; // 斤转kg
+  item.min=+val||0;item.cal=Math.round(item.m*weightKg*item.min/60);
   localStorage.setItem('couple_day',JSON.stringify(day));
   renderExeList();updateOverview();
 }
